@@ -99,7 +99,7 @@ If the reference `r` is emptied say every 100 iterations, both versions
 take around 0.06s.  This shows that what we gain is not so much
 related to actually avoiding the allocation (not suprising how fast it
 is in OCaml), nor to the rate of minor collections, but rather to the fact
-that the major GC need to scan fewer blocks.  This can be confirmed by
+that the major GC needs to scan fewer blocks.  This can be confirmed by
 adding manual calls to `Gc.full_major()` after the loop.  In the
 `some` version, each such full GC takes around 0.25s, while in the
 `Some` case, each one takes around 1.20s (I'm not sure exactly why the
