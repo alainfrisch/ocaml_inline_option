@@ -1,4 +1,4 @@
-ocaml_inline_option: expriment with optimized representation of option in OCaml
+ocaml_inline_option: experiment with optimized representation of option in OCaml
 ===============================================================================
 
 In OCaml, optional values are represented with the `'a option`, which
