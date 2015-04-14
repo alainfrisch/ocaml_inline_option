@@ -130,10 +130,10 @@ used as is, for at least the following reasons:
    as floats (i.e. allocated blocks with tag 253) and others.  This is
    because of the special representation of float arrays:
 
-     - See http://www.lexifi.com/blog/about-unboxed-float-arrays for a
-       description and some advocacy around the removal of this special
-       representation (in particular to allow such hacks with options,
-       and similar ones).
+     - See http://www.lexifi.com/blog/about-unboxed-float-arrays for
+       some advocacy around the removal of this special representation
+       (in particular to allow such hacks with options, and similar
+       ones);
 
      - and https://github.com/ocaml/ocaml/pull/163 for a pull request
        by Leo White implementing the removal of that special
