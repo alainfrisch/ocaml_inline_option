@@ -83,7 +83,7 @@ Consider the following micro-benchmark:
 let () =
   let r = ref [] in
   for i = 1 to 10000000 do
-    r := some i :: !r  (* some -> Some *)
+    r := some i :: !r  (* some i -> Some i or id (Some i) *)
   done;
   Printf.printf "%i\n%!" (List.length !r)
 ````
