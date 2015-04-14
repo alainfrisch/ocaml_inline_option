@@ -136,7 +136,7 @@ used as is, for at least the following reasons:
        and similar ones).
 
      - and https://github.com/ocaml/ocaml/pull/163 for a pull request
-       by Leo White actually the removal of that special
+       by Leo White implementing the removal of that special
        representation.
 
 
