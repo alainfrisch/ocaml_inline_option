@@ -73,3 +73,78 @@ also avoiding checks e.g. when the parameter of `Some` is known
 statically to be an allocated block (for instance `Some x` could be an
 absolute no-op when the type of `x` is a record type).
 
+
+Micro-benchmarks
+----------------
+
+Consider the following micro-benchmark:
+
+````
+let () =
+  let r = ref [] in
+  for i = 1 to 10000000 do
+    r := some i :: !r  (* some -> Some *)
+  done;
+  Printf.printf "%i\n%!" (List.length !r)
+````
+
+and the variant with `Some` instead of `some`.  I get the following timings:
+
+````
+   some  :  0.60s
+   Some  :  2.02s
+````
+
+If the reference `r` is emptied say every 100 iterations, both versions
+take around 0.06s.  This shows that what we gain is not so much
+related to actually avoiding the allocation (not suprising how fast it
+is in OCaml), nor to the rate of minor collections, but rather to the fact
+that the major GC need to scan fewer blocks.  This can be confirmed by
+adding manual calls to `Gc.full_major()` after the loop.  In the
+`some` version, each such full GC takes around 0.25s, while in the
+`Some` case, each one takes around 1.20s (I'm not sure exactly why the
+difference is so big, since list cells are present in both cases, and
+they should account for more than half the job of the GC in the `Some`
+case).
+
+It is also worth adding a call to an identity function `id`
+implemented in C around the call to `Some i`.  This gives an
+indication of what could be gained if we avoided the C call in the
+`some` version.  My observation is that adding this call to `id` adds
+about 0.1s to the `Some` case.
+
+
+Caveats
+-------
+
+The current implementation is a toy proof-of-concept.  It shouldn't be
+used as is, for at least the following reasons:
+
+ - There is no support in the generic functions such as hashing and
+   comparison, and more importantly in the generic marshaling routine.
+   It wouldn't be difficult to add support (if the proposal goes
+   upstream).
+
+ - The new representation breaks an assumption currently made by the
+   runtime system, namely that a type cannot have values represented
+   as floats (i.e. allocated blocks with tag 253) and others.  This is
+   because of the special representation of float arrays:
+
+     - See http://www.lexifi.com/blog/about-unboxed-float-arrays for a
+       description and some advocacy around the removal of this special
+       representation (in particular to allow such hacks with options,
+       and similar ones).
+
+     - and https://github.com/ocaml/ocaml/pull/163 for a pull request
+       by Leo White actually the removal of that special
+       representation.
+
+
+   If the special representation for unboxed float arrays remains in
+   OCaml, one would need to work around it and have code paths to do
+   something special (i.e. allocate) for `Some x` when `x` is a float
+   (and also to deconstruct options).  My guess is that this would
+   make the `Some` deconstructor very expensive (in many cases, one
+   doesn't know statically that a type is not float), perhaps even
+   offsetting completely the benefits of the more compact
+   representation.
